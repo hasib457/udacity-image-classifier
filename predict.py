@@ -16,7 +16,7 @@ def predict(image_path, model, device, cat_to_name, topk):
     ''' Predict the class (or classes) of an image using a trained deep learning model.
     '''
     
-    # TODO: Implement the code to predict the class from an image file
+    # Implement the code to predict the class from an image file
     
     model.to(device)
     model.eval();
@@ -40,7 +40,7 @@ def process_image(image):
         returns an Numpy array
     '''
     
-    # TODO: Process a PIL image for use in a PyTorch model
+    # Process a PIL image for use in a PyTorch model
     img = Image.open(image)
 
     # Get original dimensions
