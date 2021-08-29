@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms, models
 from collections import OrderedDict
 
+# check availability of GPU
 def check_gpu(gpu_arg):
     if not gpu_arg:
         return torch.device("cpu")
@@ -20,6 +21,7 @@ def check_gpu(gpu_arg):
         print("CUDA was not found on device, using CPU instead.")
     return device
 
+# Transforming of train data
 def train_transformer(train_dir):
    train_transforms = transforms.Compose([transforms.RandomRotation(30),
                                        transforms.RandomResizedCrop(224),
@@ -30,7 +32,7 @@ def train_transformer(train_dir):
    train_data = datasets.ImageFolder(train_dir, transform=train_transforms)
    return train_data
 
-
+# Transforming of test data
 def test_transformer(test_dir):
     test_transforms = transforms.Compose([transforms.Resize(256),
                                       transforms.CenterCrop(224),
@@ -40,7 +42,7 @@ def test_transformer(test_dir):
     test_data = datasets.ImageFolder(test_dir, transform=test_transforms)
     return test_data
     
-
+# Data loader
 def data_loader(data, train=True):
     if train: 
         loader = torch.utils.data.DataLoader(data, batch_size=50, shuffle=True)
@@ -48,7 +50,7 @@ def data_loader(data, train=True):
         loader = torch.utils.data.DataLoader(data, batch_size=50)
     return loader
 
-
+#  Pimary moodel loader and specify model architecture
 def primaryloader_model(architecture="vgg11"):
     
     model = models.__dict__[architecture](pretrained=True)
@@ -60,6 +62,7 @@ def primaryloader_model(architecture="vgg11"):
         
     return model, inputs_feat
 
+#  Initialize model and create a new model classifier
 def initiat_model(model, inputs_feat):
     # build a new classifier
 
@@ -75,7 +78,7 @@ def initiat_model(model, inputs_feat):
     
     return model
 
-
+# Train model
 def train(model, trainloader, validloader, device, criterion, optimizer, epochs):
     running_loss = 0
     step = 0
@@ -121,7 +124,8 @@ def train(model, trainloader, validloader, device, criterion, optimizer, epochs)
 
             model.train()
     return model  
-            
+
+#  validate model
 def test(model, testloader, device):
     with torch.no_grad():
         model.eval()
@@ -139,7 +143,7 @@ def test(model, testloader, device):
     return correct/total
 
 
-# TODO: Save the checkpoint 
+# Save the checkpoint 
 def save_checkpoint(model, optimizer, lr, train_set, checkpoint_dir ):
     model.class_to_idx = train_set.class_to_idx
     torch.save({ "arch": model.arch,
@@ -149,8 +153,9 @@ def save_checkpoint(model, optimizer, lr, train_set, checkpoint_dir ):
                  'state_dict':model.state_dict(),
                  'optimizer_dict': optimizer.state_dict()
                  }, checkpoint_dir)
-    
 
+    
+# arg parser for user options 
 def arg_parser():
     parser = argparse.ArgumentParser(description="Train.py")
     parser.add_argument('--arch', dest="arch", action="store", default="vgg11", type = str)
@@ -162,18 +167,8 @@ def arg_parser():
     args = parser.parse_args()
     return args
 
-def check_gpu(gpu_arg):
-    if not gpu_arg:
-        return torch.device("cpu")
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    
-    
-    if device == "cpu":
-        print("CUDA was not found on device, using CPU instead.")
-    return device
 
-
+# main function 
 def main():
     args = arg_parser()
     
